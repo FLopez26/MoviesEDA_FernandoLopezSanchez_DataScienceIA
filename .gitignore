@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+data/processed/
+figures/
+*.egg-info/
+.DS_Store
+data/raw/movie_data_tmbd.csv
