@@ -1,5 +1,5 @@
 """
-main.py — Entrypoint reproducible del proyecto.
+main.py — Ejecutable completo del proyecto (Limpia, transforma, exporta y guarda visualizaciones)
 Pipeline completo: load → clean → features → export → visualize
 
 Uso:

@@ -1,6 +1,6 @@
 # 🎬 TMDB Movie Analytics — EDA Empresarial
 
-**Máster en Data Science & AI · Proyecto Entregable**
+**Máster en Data Science & AI de Evolve · Proyecto Entregable**
 
 ---
 
@@ -61,7 +61,7 @@ MoviesEDA_FernandoLopezSanchez_DataScienceIA/
 │   ├── features.py                    ← build_features (roi, profit_M, rating_tier)
 │   ├── viz.py                         ← 5 funciones de visualización
 │   └── utils.py                       ← Validaciones y helpers
-├── main.py                            ← Entrypoint reproducible
+├── main.py                            ← Ejecutable del pproyecto completo
 ├── requirements.txt
 └── README.md
 ```
