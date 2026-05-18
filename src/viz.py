@@ -230,7 +230,7 @@ def plot_genre_trends(df: pd.DataFrame) -> plt.Figure:
     df_exp = explode_genres(df[df["release_year"].notna()])
     df_exp = df_exp[
         (df_exp["genre"].isin(TREND_GENRES)) &
-        (df_exp["release_year"] >= 1980) &
+        (df_exp["release_year"] >= 1980) &         # Solo con películas lanzadas desde 1980 para evitar ruido de décadas anteriores con menos datos
         (df_exp["release_year"] <= 2019)
     ]
 
