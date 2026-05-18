@@ -1,6 +1,5 @@
 """
 main.py — Ejecutable completo del proyecto (Limpia, transforma, exporta y guarda visualizaciones)
-Pipeline completo: load → clean → features → export → visualize
 
 Uso:
     python main.py
@@ -24,24 +23,24 @@ def run_pipeline() -> None:
     print("  Máster en Data Science & AI")
     print("=" * 60)
 
-    # 1. Carga ─────────────────────────────────────────────────────
+    # 1. Carga
     print("\n[1/5] Cargando datos crudos...")
     df = load_csv(RAW_PATH)
     print(f"      {len(df):,} filas · {df.shape[1]} columnas")
 
-    # 2. Limpieza ──────────────────────────────────────────────────
+    # 2. Limpieza
     print("\n[2/5] Aplicando limpieza y transformaciones...")
     df = clean(df)
 
-    # 3. Features ──────────────────────────────────────────────────
+    # 3. Features
     print("\n[3/5] Construyendo features...")
     df = build_features(df)
 
-    # 4. Exportar ──────────────────────────────────────────────────
+    # 4. Exportar
     print("\n[4/5] Exportando dataset limpio...")
     export_csv(df, OUT_PATH)
 
-    # 5. Visualizaciones ───────────────────────────────────────────
+    # 5. Visualizaciones
     print("\n[5/5] Generando visualizaciones...")
     plot_all(df)
 

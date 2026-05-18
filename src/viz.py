@@ -8,14 +8,13 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import seaborn as sns
-from pathlib import Path
 
 from src.config import FIG_PATH, TOP_GENRES, PALETTE
 from src.utils import explode_genres
 
 warnings.filterwarnings("ignore")
 
-# ── Estilo base ──────────────────────────────────────────────────────────────
+# Estio gráfico global para todas las visualizaciones
 plt.rcParams.update({
     "figure.dpi":      150,
     "font.family":     "sans-serif",
@@ -26,21 +25,17 @@ plt.rcParams.update({
     "grid.linestyle":  "--",
 })
 
-
+# Función para guardar las figuras
 def _save(fig: plt.Figure, name: str) -> None:
     FIG_PATH.mkdir(parents=True, exist_ok=True)
     path = FIG_PATH / name
     fig.savefig(path, bbox_inches="tight")
     print(f"[viz] Guardado → {path}")
 
-
-# ────────────────────────────────────────────────────────────────────────────
 # Q1 — ROI mediano por género (barras horizontales)
-# ────────────────────────────────────────────────────────────────────────────
 def plot_roi_by_genre(df: pd.DataFrame) -> plt.Figure:
     """
-    Q1: ¿Qué géneros tienen mayor ROI históricamente?
-    Usa la mediana del ROI (resistente a outliers) para cada género.
+    Usa la mediana del ROI (para evitar outliers) para cada género.
     Solo incluye películas con datos financieros válidos (roi no-nulo).
     """
     df_roi = df[df["roi"].notna()].copy()
@@ -51,7 +46,7 @@ def plot_roi_by_genre(df: pd.DataFrame) -> plt.Figure:
         df_exp.groupby("genre")["roi"]
         .agg(roi_median="median", count="count")
         .reset_index()
-        .query("count >= 30")
+        .query("count >= 30") # sólo géneros con al menos 30 películas para mas fiabilidad
         .sort_values("roi_median", ascending=True)
     )
 
@@ -85,12 +80,9 @@ def plot_roi_by_genre(df: pd.DataFrame) -> plt.Figure:
     return fig
 
 
-# ────────────────────────────────────────────────────────────────────────────
 # Q2 — Cuota de producción por género y década (heatmap)
-# ────────────────────────────────────────────────────────────────────────────
 def plot_genre_decade_heatmap(df: pd.DataFrame) -> plt.Figure:
     """
-    Q2: ¿Cómo ha evolucionado la cuota de producción de cada género por décadas?
     Muestra el porcentaje de películas de cada género respecto al total de su década.
     """
     df_exp = explode_genres(df[df["decade"].notna()])
@@ -135,12 +127,9 @@ def plot_genre_decade_heatmap(df: pd.DataFrame) -> plt.Figure:
     return fig
 
 
-# ────────────────────────────────────────────────────────────────────────────
 # Q3 — Presupuesto vs Recaudación log-log coloreado por género
-# ────────────────────────────────────────────────────────────────────────────
 def plot_budget_vs_revenue(df: pd.DataFrame) -> plt.Figure:
     """
-    Q3: ¿Más presupuesto garantiza más recaudación? ¿Varía por género?
     Scatter log-log. La diagonal representa ROI = 0 (break-even).
     """
     GENRES_SCATTER = ["Action", "Comedy", "Horror", "Animation", "Drama", "Thriller"]
@@ -166,8 +155,8 @@ def plot_budget_vs_revenue(df: pd.DataFrame) -> plt.Figure:
 
     ax.set_xscale("log")
     ax.set_yscale("log")
-    ax.xaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"${x/1e6:.0f}M"))
-    ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"${x/1e6:.0f}M"))
+    ax.xaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"${x/1e6:.0f}M")) # Formato en millones de dólares
+    ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"${x/1e6:.0f}M")) 
     ax.set_xlabel("Presupuesto (escala log)", fontsize=11)
     ax.set_ylabel("Recaudación (escala log)", fontsize=11)
     ax.set_title(
@@ -181,18 +170,14 @@ def plot_budget_vs_revenue(df: pd.DataFrame) -> plt.Figure:
     _save(fig, "Q3_budget_vs_revenue.png")
     return fig
 
-
-# ────────────────────────────────────────────────────────────────────────────
 # Q4 — Valoración vs ROI (scatter + tendencia)
-# ────────────────────────────────────────────────────────────────────────────
 def plot_rating_vs_roi(df: pd.DataFrame) -> plt.Figure:
     """
-    Q4: ¿Las películas mejor valoradas son también las más rentables?
-    Scatter vote_average vs ROI con línea de tendencia LOWESS.
+    Scatter vote_average vs ROI con línea de tendencia.
     ROI acotado al percentil 95 para evitar distorsión por outliers.
     """
     df_plot = df[df["roi"].notna()].copy()
-    roi_cap = df_plot["roi"].quantile(0.95)
+    roi_cap = df_plot["roi"].quantile(0.95) # acotar ROI al percentil 95 para evitar distorsión por outliers extremos
     df_plot = df_plot[df_plot["roi"] <= roi_cap]
 
     fig, ax = plt.subplots(figsize=(10, 7))
@@ -209,7 +194,7 @@ def plot_rating_vs_roi(df: pd.DataFrame) -> plt.Figure:
         ax.scatter(sub["vote_average"], sub["roi"], color=color,
                    alpha=0.3, s=12, label=tier, linewidths=0)
 
-    # Línea de tendencia (regresión polinómica grado 2)
+    # Línea de tendencia (regresión polinómica grado 2, una parábola)
     x = df_plot["vote_average"].values
     y = df_plot["roi"].values
     mask = np.isfinite(x) & np.isfinite(y)
@@ -224,7 +209,7 @@ def plot_rating_vs_roi(df: pd.DataFrame) -> plt.Figure:
     ax.set_ylabel(f"ROI (cap. p95 ≈ {roi_cap:.1f}×)", fontsize=11)
     ax.set_title(
         "Q4 · Valoración de la Crítica vs Rentabilidad (ROI)\n"
-        "Coloreado por tier de calidad; línea = tendencia cuadrática",
+        "Coloreado por tier de calidad; línea = tendencia",
         fontsize=13, fontweight="bold", pad=15
     )
     ax.legend(title="Rating Tier", framealpha=0.9, fontsize=9)
@@ -233,13 +218,9 @@ def plot_rating_vs_roi(df: pd.DataFrame) -> plt.Figure:
     _save(fig, "Q4_rating_vs_roi.png")
     return fig
 
-
-# ────────────────────────────────────────────────────────────────────────────
 # Q5 — Evolución temporal de la producción por género (líneas)
-# ────────────────────────────────────────────────────────────────────────────
 def plot_genre_trends(df: pd.DataFrame) -> plt.Figure:
     """
-    Q5: ¿Qué géneros están en auge y podrían dominar la próxima década?
     Serie temporal 1980-2019 del número de producciones por género.
     Suavizado con media móvil de 3 años para reducir ruido.
     """
@@ -258,7 +239,7 @@ def plot_genre_trends(df: pd.DataFrame) -> plt.Figure:
         .size()
         .unstack(fill_value=0)
     )
-    # Media móvil 3 años
+    # Media móvil 3 años (suavizado) para tendencias más claras
     pivot_smooth = pivot.rolling(3, center=True, min_periods=1).mean()
 
     palette = sns.color_palette("tab10", len(TREND_GENRES))
@@ -276,7 +257,7 @@ def plot_genre_trends(df: pd.DataFrame) -> plt.Figure:
                 fontsize=8, color=color
             )
 
-    # Sombreado 2020+ = proyección
+    # Sombreado 2020+ (para indicar que hay menos datos) = proyección
     ax.axvspan(2018, 2019, alpha=0.07, color="gray")
     ax.set_xlabel("Año de lanzamiento", fontsize=11)
     ax.set_ylabel("Número de producciones (media móvil 3 años)", fontsize=11)
@@ -292,10 +273,7 @@ def plot_genre_trends(df: pd.DataFrame) -> plt.Figure:
     _save(fig, "Q5_genre_trends.png")
     return fig
 
-
-# ────────────────────────────────────────────────────────────────────────────
-# Runner para generar todos los gráficos de una sola vez
-# ────────────────────────────────────────────────────────────────────────────
+# Función para generar todos los gráficos de una sola vez
 def plot_all(df: pd.DataFrame) -> None:
     """Genera y guarda las 5 visualizaciones del proyecto."""
     print("\n[viz] Generando visualizaciones...")

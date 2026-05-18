@@ -1,8 +1,8 @@
 """
-cleaning.py — Limpieza y transformación del dataset de películas TMDB.
+cleaning.py — Limpieza y transformación.
 """
 import pandas as pd
-from src.config import MIN_BUDGET, MIN_REVENUE, MIN_VOTES
+from src.config import MIN_VOTES
 from src.io import parse_genre_list
 from src.utils import assert_columns
 
@@ -43,7 +43,7 @@ def parse_dates(df: pd.DataFrame) -> pd.DataFrame:
 
 def expand_genres(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Parsea la columna 'genres' (lista de dicts JSON) y almacena:
+    Parsea la columna 'genres' y almacena:
       - genre_list : lista Python de nombres de género
       - primary_genre : primer género (o NaN)
     """
@@ -68,7 +68,6 @@ def filter_valid(df: pd.DataFrame) -> pd.DataFrame:
       - Películas con status 'Released'
       - Año de lanzamiento plausible (>= 1900)
       - vote_count >= MIN_VOTES para análisis de valoraciones
-    No filtra por budget/revenue aquí: se aplica sólo donde se necesita ROI.
     """
     mask = (
         (df["status"] == "Released") &

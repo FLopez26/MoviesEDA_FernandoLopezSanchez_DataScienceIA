@@ -8,25 +8,21 @@ from src.config import MIN_BUDGET, MIN_REVENUE
 
 def build_features(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Construye 3 features derivadas con valor analítico para el negocio:
-
     Feature 1 — roi (Return On Investment)
         ROI = (revenue - budget) / budget
         Solo para películas con budget y revenue suficientes.
-        El resto se marca como NaN (no aplica).
+        El resto se marca como NaN.
 
-    Feature 2 — profit_M (Beneficio absoluto en millones USD)
-        profit_M = (revenue - budget) / 1_000_000
-        Permite comparar magnitudes sin escala logarítmica.
+    Feature 2 — profit_M (Beneficio absoluto en millones de dólares)
+        profit_M = (revenue - budget) / 1000000
 
     Feature 3 — rating_tier (Segmentación de calidad)
-        Agrupa vote_average en cuartiles con etiquetas de negocio:
+        Agrupa vote_average en cuartiles con etiquetas:
         'Bajo' (<5.5) | 'Medio' (5.5-6.5) | 'Bueno' (6.5-7.5) | 'Excelente' (>=7.5)
-        Condicional a vote_count >= umbral mínimo (ya filtrado en cleaning).
     """
     df = df.copy()
 
-    # ── Feature 1: ROI ───────────────────────────────────────────────────────
+    # Feature 1: ROI
     mask_roi = (df["budget"] >= MIN_BUDGET) & (df["revenue"] >= MIN_REVENUE)
     df["roi"] = np.nan
     df.loc[mask_roi, "roi"] = (
@@ -34,13 +30,13 @@ def build_features(df: pd.DataFrame) -> pd.DataFrame:
         / df.loc[mask_roi, "budget"]
     )
 
-    # ── Feature 2: Beneficio absoluto (M$) ──────────────────────────────────
+    # Feature 2: Beneficio absoluto (millones de dólares)
     df["profit_M"] = np.nan
     df.loc[mask_roi, "profit_M"] = (
         df.loc[mask_roi, "revenue"] - df.loc[mask_roi, "budget"]
-    ) / 1_000_000
+    ) / 1000000
 
-    # ── Feature 3: Tier de calidad ───────────────────────────────────────────
+    # Feature 3: Tier de calidad
     bins   = [0, 5.5, 6.5, 7.5, 10.1]
     labels = ["Bajo", "Medio", "Bueno", "Excelente"]
     df["rating_tier"] = pd.cut(
