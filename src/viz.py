@@ -87,7 +87,7 @@ def plot_roi_by_genre(df: pd.DataFrame) -> plt.Figure:
         )
 
     fig.tight_layout()
-    _save(fig, "Q1_roi_by_genre.png")
+    _save(fig, "Q1_roi_profitM_by_genre.png")
     return fig
 
 
