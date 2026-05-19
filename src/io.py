@@ -9,8 +9,7 @@ from src.config import RAW_PATH, OUT_PATH
 
 def load_csv(path: Path = RAW_PATH) -> pd.DataFrame:
     """
-    Carga el CSV de TMDB (separador '|')
-    las líneas mal formadas que contienen overviews multilínea.
+    Carga el CSV de TMDB (separador '|').
     Devuelve un DataFrame con todas las columnas en crudo.
     """
     df = pd.read_csv(
