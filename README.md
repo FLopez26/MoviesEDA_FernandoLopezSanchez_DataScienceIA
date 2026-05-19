@@ -6,7 +6,8 @@
 
 ## Objetivo
 
-Responder 5 preguntas estratégicas de negocio sobre la industria cinematográfica global
+Conseguir averiguar que tipos de películas son mas rentables teniendo en cuenta sus géneros, popularidad, 
+época y conseguir saber cuales serán las mas rentables en unos años
 usando datos reales de TMDB (~120 000 películas). El análisis está orientado a **apoyar
 decisiones de inversión y producción** con evidencia cuantitativa.
 
@@ -24,7 +25,7 @@ decisiones de inversión y producción** con evidencia cuantitativa.
 
 ---
 
-## Preguntas de negocio
+## Preguntas a resolver
 
 | ID | Pregunta | Visualización |
 |----|----------|---------------|
@@ -122,18 +123,21 @@ jupyter notebook notebooks/eda.ipynb
 ## Hallazgos principales
 
 ### 1. Horror y Animation lideran el ROI mediano *(Q1)*
-Horror alcanza un ROI mediano del **~201%** y Animation del **~145%**, muy por encima de
-los blockbusters de Action (~99%). Con presupuestos relativamente bajos, estos géneros
-ofrecen el mejor retorno por euro invertido.
+Horror alcanza un ROI mediano del **~145%** y Animation del **~164%**, muy por encima de
+los blockbusters de Action (~103%). Con presupuestos relativamente bajos, estos géneros
+ofrecen el mejor retorno por euro invertido. No obstante, géneros como Action o Adventure,
+con ROI más moderado, generan beneficios absolutos en M$ mayores por el volumen de
+sus producciones.
 
 ### 2. Calidad crítica ≠ rentabilidad *(Q4)*
 La correlación entre valoración TMDB y ROI es prácticamente nula (**r ≈ 0.008**).
 Apostar por películas "de calidad" no garantiza beneficio económico.
 
 ### 3. Animation y Horror, los géneros del futuro *(Q1 + Q5)*
-Animation lleva 20 años de crecimiento sostenido en producción manteniendo alto ROI.
-Horror combina bajo coste y audiencias en expansión. Ambos géneros son la apuesta
-más sólida para carteras de inversión 2025–2035.
+Animation lleva 20 años de crecimiento sostenido en producción manteniendo un ROI
+mediano del 164% y beneficios absolutos consistentes. Horror combina bajo coste y
+audiencias en expansión. Ambos géneros son la apuesta más sólida para carteras de
+inversión 2025–2035.
 
 ---
 
