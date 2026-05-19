@@ -32,10 +32,10 @@ def _save(fig: plt.Figure, name: str) -> None:
     fig.savefig(path, bbox_inches="tight")
     print(f"[viz] Guardado → {path}")
 
-# Q1 — ROI mediano por género (barras horizontales)
+# Q1 — ROI y profit_M mediano por género (barras horizontales)
 def plot_roi_by_genre(df: pd.DataFrame) -> plt.Figure:
     """
-    Usa la mediana del ROI (para evitar outliers) para cada género.
+    Usa la mediana del ROI y del profit_M para cada género.
     Solo incluye películas con datos financieros válidos (roi no-nulo).
     """
     df_roi = df[df["roi"].notna()].copy()
@@ -46,27 +46,38 @@ def plot_roi_by_genre(df: pd.DataFrame) -> plt.Figure:
         df_exp.groupby("genre")["roi"]
         .agg(roi_median="median", count="count")
         .reset_index()
-        .query("count >= 30") # sólo géneros con al menos 30 películas para mas fiabilidad
+        .query("count >= 30")
         .sort_values("roi_median", ascending=True)
     )
+
+    # Añadimos profit_M mediano
+    profit_stats = (
+        df_exp.groupby("genre")["profit_M"]
+        .median()
+        .reset_index()
+        .rename(columns={"profit_M": "profit_median"})
+    )
+    stats = stats.merge(profit_stats, on="genre")
 
     fig, ax = plt.subplots(figsize=(10, 7))
     colors = [PALETTE["success"] if v >= 0 else PALETTE["danger"] for v in stats["roi_median"]]
     bars = ax.barh(stats["genre"], stats["roi_median"] * 100, color=colors, edgecolor="white", linewidth=0.5)
 
-    # Etiquetas de valor
-    for bar, val in zip(bars, stats["roi_median"]):
+    # Etiqueta ROI% + Profit_M al final de cada barra
+    for bar, (_, row) in zip(bars, stats.iterrows()):
         ax.text(
             bar.get_width() + 1.5, bar.get_y() + bar.get_height() / 2,
-            f"{val*100:.0f}%", va="center", fontsize=9, color="#374151"
+            f"{row['roi_median']*100:.0f}%  |  +{row['profit_median']:.1f}M$",
+            va="center", fontsize=9, color="#374151"
         )
 
     ax.axvline(0, color="#374151", linewidth=1)
     ax.set_xlabel("ROI Mediano (%)", fontsize=11)
-    ax.set_title("Q1 · ROI Mediano Histórico por Género\n"
-                 "Mediana del retorno sobre inversión (sólo películas con datos financieros)",
+    ax.set_title("Q1 · ROI Mediano e Beneficio Absoluto por Género\n"
+                 "Mediana del retorno (%) y beneficio neto (M$) por género",
                  fontsize=13, fontweight="bold", pad=15)
-    ax.set_xlim(left=min(stats["roi_median"].min() * 100 - 10, -20))
+    ax.set_xlim(left=min(stats["roi_median"].min() * 100 - 10, -20),
+                right=stats["roi_median"].max() * 100 + 80)  # espacio para etiquetas
 
     # Nota de recuento
     for i, (_, row) in enumerate(stats.iterrows()):
