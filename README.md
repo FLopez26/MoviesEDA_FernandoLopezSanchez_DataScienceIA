@@ -1,6 +1,6 @@
 # 🎬 TMDB Movie Analytics — EDA Empresarial
 
-**Máster en Data Science & AI · Proyecto Entregable**
+**Máster en Data Science & AI de Evolve · Proyecto Entregable**
 
 ---
 
