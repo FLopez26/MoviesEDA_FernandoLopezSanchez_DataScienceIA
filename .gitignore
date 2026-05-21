@@ -5,4 +5,5 @@ __pycache__/
 *.egg-info/
 .DS_Store
 data/raw/movie_data_tmbd.csv
+!data/raw/sample_movie_data.csv
 data/processed/clean_dataset.csv

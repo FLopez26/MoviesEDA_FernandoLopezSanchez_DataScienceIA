@@ -284,6 +284,83 @@ def plot_genre_trends(df: pd.DataFrame) -> plt.Figure:
     _save(fig, "Q5_genre_trends.png")
     return fig
 
+# Q6 — Heatmap ROI mediano Género × Rating Tier
+def plot_genre_rating_heatmap(df: pd.DataFrame) -> plt.Figure:
+    """
+    Mapa de calor del ROI mediano cruzando género y rating tier.
+    """
+    df_exp = explode_genres(df[df["roi"].notna() & df["rating_tier"].notna()])
+    df_exp = df_exp[df_exp["genre"].isin(TOP_GENRES)]
+
+    pivot = (
+        df_exp.groupby(["genre", "rating_tier"], observed=True)["roi"]
+        .median()
+        .unstack()
+        * 100
+    )
+
+    fig, ax = plt.subplots(figsize=(10, 8))
+    sns.heatmap(
+        pivot,
+        ax=ax,
+        cmap="RdYlGn",
+        annot=True,
+        fmt=".0f",
+        linewidths=0.5,
+        linecolor="#E5E7EB",
+        cbar_kws={"label": "ROI mediano (%)"},
+        annot_kws={"size": 10},
+    )
+    ax.set_title(
+        "Q6 · ROI Mediano (%) por Género × Rating Tier\n"
+        "Verde = mayor rentabilidad; rojo = menor rentabilidad",
+        fontsize=13, fontweight="bold", pad=15
+    )
+    ax.set_xlabel("Rating Tier", fontsize=11)
+    ax.set_ylabel("Género", fontsize=11)
+    ax.tick_params(axis="both", rotation=0)
+    fig.tight_layout()
+    _save(fig, "Q6_genre_rating_roi.png")
+    return fig
+
+# Q7 — Boxplot beneficio neto por género
+def plot_profit_boxplot(df: pd.DataFrame) -> plt.Figure:
+    """
+    Boxplot del profit_M con cap al percentil 95 para legibilidad.
+    """
+    df_exp = explode_genres(df[df["profit_M"].notna()])
+    df_exp = df_exp[df_exp["genre"].isin(TOP_GENRES)]
+
+    cap = df_exp["profit_M"].quantile(0.95)
+    df_exp = df_exp[df_exp["profit_M"] <= cap]
+
+    order = (
+        df_exp.groupby("genre")["profit_M"]
+        .median()
+        .sort_values(ascending=False)
+        .index.tolist()
+    )
+
+    fig, ax = plt.subplots(figsize=(13, 7))
+    sns.boxplot(
+        data=df_exp, x="genre", y="profit_M",
+        order=order, palette="Blues_d", ax=ax,
+        fliersize=2, linewidth=0.8,
+    )
+    ax.axhline(0, color="#DC2626", linewidth=1.2, linestyle="--", label="Break-even (0 M$)")
+    ax.set_xlabel("Género", fontsize=11)
+    ax.set_ylabel(f"Beneficio neto (M$, cap. p95 ≈ {cap:.0f}M$)", fontsize=11)
+    ax.set_title(
+        "Q7 · Distribución del Beneficio Neto por Género (M$)\n"
+        "La caja muestra el rango intercuartílico; la línea central es la mediana",
+        fontsize=13, fontweight="bold", pad=15
+    )
+    ax.tick_params(axis="x", rotation=15)
+    ax.legend()
+    fig.tight_layout()
+    _save(fig, "Q7_profit_boxplot.png")
+    return fig
+
 # Función para generar todos los gráficos de una sola vez
 def plot_all(df: pd.DataFrame) -> None:
     """Genera y guarda las 5 visualizaciones del proyecto."""
@@ -293,4 +370,6 @@ def plot_all(df: pd.DataFrame) -> None:
     plot_budget_vs_revenue(df)
     plot_rating_vs_roi(df)
     plot_genre_trends(df)
+    plot_genre_rating_heatmap(df)
+    plot_profit_boxplot(df)
     print("[viz] ✓ Todas las visualizaciones guardadas en /figures/")
